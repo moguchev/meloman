@@ -1,0 +1,53 @@
+version: "3.3"
+
+services:
+  pg:
+    image: postgres:10.14
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: meloman
+    ports:
+      - 5432:5432
+    networks:
+      - some-net
+
+  bouncer:
+    image: edoburu/pgbouncer:1.14.0
+    environment:
+      DATABASE_URL: postgres://user:password@pg
+      POOL_MODE: transaction
+      LISTEN_PORT: 6432
+      # - DATABASES_HOST=pg
+      # - DATABASES_USER=user
+      # - DATABASES_PASSWORD=password
+      # - DATABASES_POOL_SIZE=10
+      # - PGBOUNCER_POOL_MODE=transaction
+      # - PGBOUNCER_MAX_CLIENT_CONN=100
+      # - PGBOUNCER_DEFAULT_POOL_SIZE=20
+      # - PGBOUNCER_IGNORE_STARTUP_PARAMETERS=binary_parameters,extra_float_digits,pool_max_conns
+    ports:
+      - 6432:6432
+    networks:
+      - some-net
+  
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: 'server-container'
+    restart: unless-stopped
+    hostname: server
+    environment:
+      DATABASE_URL: postgres://user:password@bouncer:6432/meloman?sslmode=disable
+    ports:
+      - 8080:8080
+    command: ./meloman
+    depends_on:
+      - pg
+      - bouncer
+    networks:
+      - some-net
+networks:
+  some-net:
+    driver: bridge
