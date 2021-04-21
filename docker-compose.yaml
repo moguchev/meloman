@@ -42,6 +42,7 @@ services:
       DATABASE_URL: postgres://user:password@bouncer:6432/meloman?sslmode=disable
     ports:
       - 8080:8080
+      - 8090:8090
     command: ./meloman
     depends_on:
       - pg

@@ -21,6 +21,7 @@ COPY . ${GOPATH}/src/github.com/moguchev/meloman
 WORKDIR ${GOPATH}/src/github.com/moguchev/meloman
 # build
 RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/meloman -v ./cmd/meloman
+
 ################################
 # STEP 2 build a small image
 ############################
@@ -29,10 +30,12 @@ FROM scratch AS final
 COPY --from=build /bin/meloman .
 
 ADD ./db/migrations /db/migrations
+ADD ./swaggerui ./swaggerui
 
 ENV PG_HOST pg
 ENV BOUNCER_HOST bouncer
  
 EXPOSE 8080 8080
+EXPOSE 8090 8090
 # Run the executable
 CMD ["./meloman"]

@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package github.moguchev.meloman;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "google/api/http.proto";
+import "google/api/httpbody.proto";
+
+option go_package = "github.com/moguchev/meloman/pkg/api/meloman";
+  
+service Meloman {
+    rpc Ping(google.protobuf.Empty) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            get: "/ping"
+        };
+    }
+}

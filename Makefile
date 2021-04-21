@@ -15,4 +15,15 @@ build:
 
 .PHONY: migration
 migration:
-	migrate create -ext sql -dir ./db/migrations -seq $(SEQ)  
+	migrate create -ext sql -dir ./db/migrations -seq $(SEQ)
+
+.PHONY: generate
+generate:
+	buf beta mod update 
+	buf generate
+	cp ./api/meloman/meloman.swagger.json ./swaggerui/
+
+.PHONY: deps
+deps:
+	# go get -v -d ./...
+	go mod tidy
