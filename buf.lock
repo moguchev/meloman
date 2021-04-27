@@ -11,6 +11,6 @@ deps:
     owner: grpc-ecosystem
     repository: grpc-gateway
     branch: main
-    commit: 7c1895c8bc284b96a022ec096a3ebb22
-    digest: b1-CpNL_tGHd81xY_xXOXhSty5wA0GN7oq2OQc2HdswKnE=
-    create_time: 2021-04-21T00:33:38.295926Z
+    commit: 86ebc0cb352e4f99bc75ed89f3be5d86
+    digest: b1-AcUA_iQHn8x533qMlEWsfKgcY-T6NVPi3IR1_nLhvyA=
+    create_time: 2021-04-22T23:16:17.38885Z

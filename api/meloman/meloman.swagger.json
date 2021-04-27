@@ -16,8 +16,110 @@
     "application/json"
   ],
   "paths": {
+    "/api/v1/auth": {
+      "post": {
+        "summary": "авторизация",
+        "operationId": "Meloman_Auth",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/melomanAuthResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "логин и пароль",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/melomanCredentials"
+            }
+          }
+        ],
+        "tags": [
+          "Meloman"
+        ]
+      }
+    },
+    "/api/v1/user": {
+      "post": {
+        "summary": "создание пользователя/регистрация",
+        "operationId": "Meloman_CreateUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/melomanCreateUserResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "логин и пароль",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/melomanCredentials"
+            }
+          }
+        ],
+        "tags": [
+          "Meloman"
+        ]
+      }
+    },
+    "/api/v1/user/{id}": {
+      "get": {
+        "summary": "получение пользователя по id",
+        "operationId": "Meloman_GetUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/melomanGetUserResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "id пользователя",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "Meloman"
+        ]
+      }
+    },
     "/ping": {
       "get": {
+        "summary": "проверка работоспособности сервиса",
         "operationId": "Meloman_Ping",
         "responses": {
           "200": {
@@ -40,6 +142,71 @@
     }
   },
   "definitions": {
+    "melomanAuthResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "title": "id авторизированного пользователя"
+        }
+      }
+    },
+    "melomanCreateUserResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "title": "id созданного пользователя"
+        }
+      }
+    },
+    "melomanCredentials": {
+      "type": "object",
+      "properties": {
+        "login": {
+          "type": "string",
+          "title": "логин"
+        },
+        "password": {
+          "type": "string",
+          "title": "пароль"
+        }
+      }
+    },
+    "melomanGetUserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/melomanUser",
+          "title": "пользователь"
+        }
+      }
+    },
+    "melomanUser": {
+      "type": "object",
+      "properties": {
+        "login": {
+          "type": "string",
+          "title": "логин"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "title": "время регистрации пользователя"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "title": "время последнего изменения пользователя"
+        },
+        "isAdmin": {
+          "type": "boolean",
+          "title": "является ли пользователь админом"
+        }
+      }
+    },
     "protobufAny": {
       "type": "object",
       "properties": {

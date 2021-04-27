@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS users (
     created_at timestamp     NOT NULL,
     updated_at timestamp     NOT NULL,
     is_admin   bool          NOT NULL DEFAULT FALSE,
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    UNIQUE (login)
 );
 
 CREATE TABLE IF NOT EXISTS artists (

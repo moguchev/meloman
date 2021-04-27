@@ -11,6 +11,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/moguchev/meloman/db"
+	"github.com/moguchev/meloman/internal/auth"
 	"github.com/moguchev/meloman/internal/service"
 	"github.com/moguchev/meloman/pkg/api/meloman"
 	gwmeloman "github.com/moguchev/meloman/pkg/gw/meloman"
@@ -24,6 +25,8 @@ const (
 	ServerAdressGRPC = ":8090"
 	ServerAdressHTTP = ":8080"
 	SwaggerDir       = "./swaggerui"
+	SecretKey        = "aQd23nsoEd"
+	TokenDuration    = 30 * time.Minute
 )
 
 func serveSwagger(mux *http.ServeMux) {
@@ -55,12 +58,18 @@ func main() {
 		logger.Fatal("migrate database", zap.Error(err))
 	}
 
+	jwtManager := auth.NewJWTManager(SecretKey, TokenDuration)
+	interceptor := auth.NewInterceptor(jwtManager, meloman.AccessibleRoles())
+	authManager := auth.NewManager(interceptor, jwtManager)
+
 	// Create a gRPC server object
 	grpcs := grpc.NewServer(
-		grpc.ConnectionTimeout(5 * time.Second),
+		grpc.ConnectionTimeout(5*time.Second),
+		grpc.UnaryInterceptor(authManager.Unary()),
+		grpc.StreamInterceptor(authManager.Stream()),
 	)
 	// Create Service
-	srv := service.NewService(logger, database)
+	srv := service.NewService(logger, database, authManager)
 
 	// Attach the Meloman service to the server
 	meloman.RegisterMelomanServer(grpcs, srv)

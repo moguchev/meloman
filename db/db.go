@@ -13,6 +13,8 @@ import (
 // Database - interface
 type Database interface {
 	io.Closer
+	// no time todo repository
+	DB() *pgxpool.Pool
 }
 
 // database - implements Database interface
@@ -25,6 +27,10 @@ type database struct {
 func (db *database) Close() error {
 	db.pool.Close()
 	return nil
+}
+
+func (db *database) DB() *pgxpool.Pool {
+	return db.pool
 }
 
 // Initialize - returns Database

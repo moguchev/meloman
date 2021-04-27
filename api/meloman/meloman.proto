@@ -11,9 +11,81 @@ import "google/api/httpbody.proto";
 option go_package = "github.com/moguchev/meloman/pkg/api/meloman";
   
 service Meloman {
+    // проверка работоспособности сервиса
     rpc Ping(google.protobuf.Empty) returns (google.protobuf.Empty) {
         option (google.api.http) = {
             get: "/ping"
         };
     }
+
+    // авторизация
+    rpc Auth(AuthRequest) returns(AuthResponse) {
+        option (google.api.http) = {
+            post: "/api/v1/auth",
+            body: "credentials"
+        };
+    }
+
+    // создание пользователя/регистрация
+    rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
+        option (google.api.http) = {
+            post: "/api/v1/user",
+            body: "credentials"
+        };
+    }
+
+    // получение пользователя по id
+    rpc GetUser(GetUserRequest) returns (GetUserResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/user/{id}"
+        };
+    }
+}
+
+message Credentials {
+    // логин
+    string login = 1;
+    // пароль
+    string password = 2;
+}
+
+message CreateUserRequest {
+    // логин и пароль
+    Credentials credentials = 1;
+}
+
+message CreateUserResponse {
+    // id созданного пользователя
+    int64 id = 1;
+}
+
+message AuthRequest {
+    // логин и пароль
+    Credentials credentials = 1;
+}
+
+message AuthResponse {
+    // id авторизированного пользователя
+    int64 id = 1;
+}
+
+message GetUserRequest {
+    // id пользователя
+    int64 id = 1;
+}
+
+message User {
+    // логин
+    string login = 1;
+    // время регистрации пользователя
+    google.protobuf.Timestamp created_at = 2;
+    // время последнего изменения пользователя
+    google.protobuf.Timestamp updated_at = 3;
+    // является ли пользователь админом
+    bool is_admin = 4;
+}
+
+message GetUserResponse {
+    // пользователь
+    User user = 1;
 }
