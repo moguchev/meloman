@@ -108,8 +108,7 @@
             "description": "id пользователя",
             "in": "path",
             "required": true,
-            "type": "string",
-            "format": "int64"
+            "type": "string"
           }
         ],
         "tags": [
@@ -147,7 +146,6 @@
       "properties": {
         "id": {
           "type": "string",
-          "format": "int64",
           "title": "id авторизированного пользователя"
         }
       }
@@ -157,7 +155,6 @@
       "properties": {
         "id": {
           "type": "string",
-          "format": "int64",
           "title": "id созданного пользователя"
         }
       }
@@ -184,6 +181,15 @@
         }
       }
     },
+    "melomanRole": {
+      "type": "string",
+      "enum": [
+        "USER",
+        "ADMIN"
+      ],
+      "default": "USER",
+      "title": "- USER: пользователь\n - ADMIN: администратор"
+    },
     "melomanUser": {
       "type": "object",
       "properties": {
@@ -201,9 +207,9 @@
           "format": "date-time",
           "title": "время последнего изменения пользователя"
         },
-        "isAdmin": {
-          "type": "boolean",
-          "title": "является ли пользователь админом"
+        "role": {
+          "$ref": "#/definitions/melomanRole",
+          "title": "роль пользователя"
         }
       }
     },

@@ -8,17 +8,18 @@ import (
 	"os"
 	"time"
 
-	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/moguchev/meloman/db"
-	"github.com/moguchev/meloman/internal/auth"
-	"github.com/moguchev/meloman/internal/service"
-	"github.com/moguchev/meloman/pkg/api/meloman"
-	gwmeloman "github.com/moguchev/meloman/pkg/gw/meloman"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/encoding/protojson"
+
+	"github.com/moguchev/meloman/db"
+	"github.com/moguchev/meloman/internal/access"
+	"github.com/moguchev/meloman/internal/auth"
+	"github.com/moguchev/meloman/internal/service"
+	"github.com/moguchev/meloman/pkg/api/meloman"
+	gwmeloman "github.com/moguchev/meloman/pkg/gw/meloman"
 )
 
 const (
@@ -41,6 +42,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	// logger
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		log.Fatal("create logger")
@@ -58,9 +60,9 @@ func main() {
 		logger.Fatal("migrate database", zap.Error(err))
 	}
 
+	// auth
 	jwtManager := auth.NewJWTManager(SecretKey, TokenDuration)
-	interceptor := auth.NewInterceptor(jwtManager, meloman.AccessibleRoles())
-	authManager := auth.NewManager(interceptor, jwtManager)
+	authManager := auth.NewManager(jwtManager, access.AccessibleRoles(), logger)
 
 	// Create a gRPC server object
 	grpcs := grpc.NewServer(
@@ -105,7 +107,6 @@ func main() {
 		runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
 			MarshalOptions: protojson.MarshalOptions{
 				EmitUnpopulated: true,
-				// UseEnumNumbers:  true,
 			},
 			UnmarshalOptions: protojson.UnmarshalOptions{
 				DiscardUnknown: true,

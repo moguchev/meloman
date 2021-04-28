@@ -2,8 +2,8 @@ package auth
 
 import (
 	"context"
-	"log"
 
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -20,10 +20,18 @@ type Interceptor interface {
 type interceptor struct {
 	tokenManager    TokenManager
 	accessibleRoles map[string][]string
+	logger          *zap.Logger
 }
 
-func NewInterceptor(manager TokenManager, accessibleRoles map[string][]string) Interceptor {
-	return &interceptor{manager, accessibleRoles}
+func NewInterceptor(manager TokenManager, accessibleRoles map[string][]string, log *zap.Logger) Interceptor {
+	if log == nil {
+		log, _ = zap.NewDevelopment()
+	}
+	return &interceptor{
+		tokenManager:    manager,
+		accessibleRoles: accessibleRoles,
+		logger:          log,
+	}
 }
 
 func (i *interceptor) Unary() grpc.UnaryServerInterceptor {
@@ -33,9 +41,11 @@ func (i *interceptor) Unary() grpc.UnaryServerInterceptor {
 		info *grpc.UnaryServerInfo,
 		handler grpc.UnaryHandler,
 	) (interface{}, error) {
-		log.Println("--> unary interceptor: ", info.FullMethod)
+		const api = "interceptor.Unary"
+		i.logger.Debug(api, zap.String("method", info.FullMethod))
 
 		if err := i.authorize(ctx, info.FullMethod); err != nil {
+			i.logger.Error(api, zap.Error(err))
 			return nil, err
 		}
 
@@ -50,9 +60,11 @@ func (i *interceptor) Stream() grpc.StreamServerInterceptor {
 		info *grpc.StreamServerInfo,
 		handler grpc.StreamHandler,
 	) error {
-		log.Println("--> stream interceptor: ", info.FullMethod)
+		const api = "interceptor.Stream"
+		i.logger.Debug(api, zap.String("method", info.FullMethod))
 
 		if err := i.authorize(stream.Context(), info.FullMethod); err != nil {
+			i.logger.Error(api, zap.Error(err))
 			return err
 		}
 

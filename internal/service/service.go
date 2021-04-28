@@ -20,7 +20,8 @@ func NewService(log *zap.Logger, repo db.Database, am auth.Manager) meloman.Melo
 		log, _ = zap.NewDevelopment()
 	}
 	return &service{
-		repo: repo,
-		log:  log,
+		repo:        repo,
+		log:         log,
+		authManager: am,
 	}
 }

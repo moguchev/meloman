@@ -10,10 +10,12 @@ import (
 )
 
 func (s *service) Ping(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
-	const api = "service.ping"
+	const api = "service.Ping"
+
 	if err := s.repo.DB().Ping(ctx); err != nil {
 		s.log.Error(api, zap.Error(err))
 		return nil, status.Error(codes.Internal, codes.Internal.String())
 	}
+
 	return &emptypb.Empty{}, nil
 }

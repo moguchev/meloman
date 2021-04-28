@@ -1,6 +1,9 @@
 package auth
 
-import "google.golang.org/grpc"
+import (
+	"go.uber.org/zap"
+	"google.golang.org/grpc"
+)
 
 type Manager interface {
 	TokenManager
@@ -10,11 +13,15 @@ type Manager interface {
 type manager struct {
 	interceptor  Interceptor
 	tokenManager TokenManager
+	logger       *zap.Logger
 }
 
-func NewManager(intcptr Interceptor, tm TokenManager) Manager {
+func NewManager(tm TokenManager, accessibleRoles map[string][]string, log *zap.Logger) Manager {
+	if log == nil {
+		log, _ = zap.NewDevelopment()
+	}
 	return &manager{
-		interceptor:  intcptr,
+		interceptor:  NewInterceptor(tm, accessibleRoles),
 		tokenManager: tm,
 	}
 }

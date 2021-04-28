@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS users (
     id         uuid          NOT NULL,
     login      varchar(64)   NOT NULL,
     password   varchar(256)  NOT NULL,
-    salt       int8          NOT NULL,
+    salt       varchar(256)  NOT NULL,
     created_at timestamp     NOT NULL,
     updated_at timestamp     NOT NULL,
     is_admin   bool          NOT NULL DEFAULT FALSE,
