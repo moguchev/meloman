@@ -13,7 +13,6 @@ type Manager interface {
 type manager struct {
 	interceptor  Interceptor
 	tokenManager TokenManager
-	logger       *zap.Logger
 }
 
 func NewManager(tm TokenManager, accessibleRoles map[string][]string, log *zap.Logger) Manager {
@@ -21,7 +20,7 @@ func NewManager(tm TokenManager, accessibleRoles map[string][]string, log *zap.L
 		log, _ = zap.NewDevelopment()
 	}
 	return &manager{
-		interceptor:  NewInterceptor(tm, accessibleRoles),
+		interceptor:  NewInterceptor(tm, accessibleRoles, log),
 		tokenManager: tm,
 	}
 }
