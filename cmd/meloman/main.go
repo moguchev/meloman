@@ -8,9 +8,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	"github.com/grpc-ecosystem/go-grpc-middleware/recovery"
+	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
@@ -79,18 +78,18 @@ func main() {
 		return status.Errorf(codes.Internal, codes.Internal.String())
 	}
 	// Shared options for the logger, with a custom gRPC code to log level function.
-	opts := []recovery.Option{
-		recovery.WithRecoveryHandler(customFunc),
+	opts := []grpc_recovery.Option{
+		grpc_recovery.WithRecoveryHandler(customFunc),
 	}
 
 	// Create a gRPC server object
 	grpcs := grpc.NewServer(
 		grpc.ConnectionTimeout(5*time.Second),
 		grpc_middleware.WithUnaryServerChain(
-			recovery.UnaryServerInterceptor(opts...),
+			grpc_recovery.UnaryServerInterceptor(opts...),
 		),
 		grpc_middleware.WithStreamServerChain(
-			recovery.StreamServerInterceptor(opts...),
+			grpc_recovery.StreamServerInterceptor(opts...),
 		),
 		grpc.UnaryInterceptor(authManager.Unary()),
 		grpc.StreamInterceptor(authManager.Stream()),
