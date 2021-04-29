@@ -76,7 +76,7 @@ func main() {
 	// Define customfunc to handle panic
 	customFunc := func(p interface{}) (err error) {
 		logger.Error("panic", zap.Any("panic", p))
-		return status.Errorf(codes.Unknown, "panic triggered: %v", p)
+		return status.Errorf(codes.Internal, codes.Internal.String())
 	}
 	// Shared options for the logger, with a custom gRPC code to log level function.
 	opts := []recovery.Option{
