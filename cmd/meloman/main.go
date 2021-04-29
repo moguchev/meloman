@@ -8,10 +8,15 @@ import (
 	"os"
 	"time"
 
+	"github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/encoding/protojson"
 
 	"github.com/moguchev/meloman/db"
@@ -39,6 +44,10 @@ func serveSwagger(mux *http.ServeMux) {
 func main() {
 	url := os.Getenv("DATABASE_URL")
 
+	// Create a server. Recovery handlers should typically be last in the chain so that other middleware
+	// (e.g. logging) can operate on the recovered state instead of being directly affected by any panic
+	_ = grpc.NewServer()
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -64,9 +73,25 @@ func main() {
 	jwtManager := auth.NewJWTManager(SecretKey, TokenDuration)
 	authManager := auth.NewManager(jwtManager, access.AccessibleRoles(), logger)
 
+	// Define customfunc to handle panic
+	customFunc := func(p interface{}) (err error) {
+		logger.Error("panic", zap.Any("panic", p))
+		return status.Errorf(codes.Unknown, "panic triggered: %v", p)
+	}
+	// Shared options for the logger, with a custom gRPC code to log level function.
+	opts := []recovery.Option{
+		recovery.WithRecoveryHandler(customFunc),
+	}
+
 	// Create a gRPC server object
 	grpcs := grpc.NewServer(
 		grpc.ConnectionTimeout(5*time.Second),
+		grpc_middleware.WithUnaryServerChain(
+			recovery.UnaryServerInterceptor(opts...),
+		),
+		grpc_middleware.WithStreamServerChain(
+			recovery.StreamServerInterceptor(opts...),
+		),
 		grpc.UnaryInterceptor(authManager.Unary()),
 		grpc.StreamInterceptor(authManager.Stream()),
 	)

@@ -7,7 +7,7 @@ import (
 	"go.uber.org/zap"
 )
 
-type service struct {
+type implimentation struct {
 	meloman.UnimplementedMelomanServer
 
 	repo        db.Database
@@ -19,7 +19,7 @@ func NewService(log *zap.Logger, repo db.Database, am auth.Manager) meloman.Melo
 	if log == nil {
 		log, _ = zap.NewDevelopment()
 	}
-	return &service{
+	return &implimentation{
 		repo:        repo,
 		log:         log,
 		authManager: am,

@@ -5,6 +5,10 @@ up:
 	docker-compose build
 	docker-compose up -d pg bouncer server
 
+.PHONY: up_db
+up_db:
+	docker-compose up -d pg bouncer
+
 .PHONY: down
 down:
 	docker-compose down
@@ -27,3 +31,7 @@ generate:
 deps:
 	# go get -v -d ./...
 	go mod tidy
+
+.PHONY: run
+run:
+	DATABASE_URL=postgres://user:password@localhost:6432/meloman?sslmode=disable ./bin/meloman

@@ -9,7 +9,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (s *service) Ping(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
+func (s *implimentation) Ping(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
 	const api = "service.Ping"
 
 	if err := s.repo.DB().Ping(ctx); err != nil {

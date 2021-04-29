@@ -20,7 +20,7 @@ import (
 	"github.com/moguchev/meloman/pkg/random"
 )
 
-func (s *service) CreateUser(ctx context.Context, req *meloman.CreateUserRequest) (*meloman.CreateUserResponse, error) {
+func (s *implimentation) CreateUser(ctx context.Context, req *meloman.CreateUserRequest) (*meloman.CreateUserResponse, error) {
 	const api = "service.CreateUser"
 
 	credentials := req.GetCredentials()
@@ -61,7 +61,11 @@ func (s *service) CreateUser(ctx context.Context, req *meloman.CreateUserRequest
 	}
 
 	// set auth headers
-	token, _ := s.authManager.Generate(credentials.GetLogin(), models.RoleUser.String())
+	token, err := s.authManager.Generate(credentials.GetLogin(), models.RoleUser.String())
+	if err != nil {
+		s.log.Error(api, zap.Error(err))
+		return nil, status.Error(codes.Internal, codes.Internal.String())
+	}
 	// create and send header
 	header := metadata.Pairs(auth.Header, token)
 	grpc.SendHeader(ctx, header)
