@@ -20,13 +20,29 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MelomanClient interface {
 	// проверка работоспособности сервиса
+	//
+	// access: *
 	Ping(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// авторизация
+	//
+	// access: *
 	Auth(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*AuthResponse, error)
 	// создание пользователя/регистрация
+	//
+	// access: *
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
 	// получение пользователя по id
-	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
+	//
+	// access: user, admin
+	GetUserByID(ctx context.Context, in *GetUserByIDRequest, opts ...grpc.CallOption) (*GetUserByIDResponse, error)
+	// получение всех пользователей
+	//
+	// access: user, admin
+	GetUsers(ctx context.Context, in *GetUsersRequest, opts ...grpc.CallOption) (*GetUsersResponse, error)
+	// изменение роли пользователя
+	//
+	// access: admin
+	UpdateUserRole(ctx context.Context, in *UpdateUserRoleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type melomanClient struct {
@@ -64,9 +80,27 @@ func (c *melomanClient) CreateUser(ctx context.Context, in *CreateUserRequest, o
 	return out, nil
 }
 
-func (c *melomanClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error) {
-	out := new(GetUserResponse)
-	err := c.cc.Invoke(ctx, "/github.moguchev.meloman.Meloman/GetUser", in, out, opts...)
+func (c *melomanClient) GetUserByID(ctx context.Context, in *GetUserByIDRequest, opts ...grpc.CallOption) (*GetUserByIDResponse, error) {
+	out := new(GetUserByIDResponse)
+	err := c.cc.Invoke(ctx, "/github.moguchev.meloman.Meloman/GetUserByID", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *melomanClient) GetUsers(ctx context.Context, in *GetUsersRequest, opts ...grpc.CallOption) (*GetUsersResponse, error) {
+	out := new(GetUsersResponse)
+	err := c.cc.Invoke(ctx, "/github.moguchev.meloman.Meloman/GetUsers", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *melomanClient) UpdateUserRole(ctx context.Context, in *UpdateUserRoleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/github.moguchev.meloman.Meloman/UpdateUserRole", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -78,13 +112,29 @@ func (c *melomanClient) GetUser(ctx context.Context, in *GetUserRequest, opts ..
 // for forward compatibility
 type MelomanServer interface {
 	// проверка работоспособности сервиса
+	//
+	// access: *
 	Ping(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	// авторизация
+	//
+	// access: *
 	Auth(context.Context, *AuthRequest) (*AuthResponse, error)
 	// создание пользователя/регистрация
+	//
+	// access: *
 	CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
 	// получение пользователя по id
-	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
+	//
+	// access: user, admin
+	GetUserByID(context.Context, *GetUserByIDRequest) (*GetUserByIDResponse, error)
+	// получение всех пользователей
+	//
+	// access: user, admin
+	GetUsers(context.Context, *GetUsersRequest) (*GetUsersResponse, error)
+	// изменение роли пользователя
+	//
+	// access: admin
+	UpdateUserRole(context.Context, *UpdateUserRoleRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedMelomanServer()
 }
 
@@ -101,8 +151,14 @@ func (UnimplementedMelomanServer) Auth(context.Context, *AuthRequest) (*AuthResp
 func (UnimplementedMelomanServer) CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
 }
-func (UnimplementedMelomanServer) GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
+func (UnimplementedMelomanServer) GetUserByID(context.Context, *GetUserByIDRequest) (*GetUserByIDResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserByID not implemented")
+}
+func (UnimplementedMelomanServer) GetUsers(context.Context, *GetUsersRequest) (*GetUsersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUsers not implemented")
+}
+func (UnimplementedMelomanServer) UpdateUserRole(context.Context, *UpdateUserRoleRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserRole not implemented")
 }
 func (UnimplementedMelomanServer) mustEmbedUnimplementedMelomanServer() {}
 
@@ -171,20 +227,56 @@ func _Meloman_CreateUser_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Meloman_GetUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserRequest)
+func _Meloman_GetUserByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserByIDRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MelomanServer).GetUser(ctx, in)
+		return srv.(MelomanServer).GetUserByID(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/github.moguchev.meloman.Meloman/GetUser",
+		FullMethod: "/github.moguchev.meloman.Meloman/GetUserByID",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MelomanServer).GetUser(ctx, req.(*GetUserRequest))
+		return srv.(MelomanServer).GetUserByID(ctx, req.(*GetUserByIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Meloman_GetUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUsersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MelomanServer).GetUsers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/github.moguchev.meloman.Meloman/GetUsers",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MelomanServer).GetUsers(ctx, req.(*GetUsersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Meloman_UpdateUserRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateUserRoleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MelomanServer).UpdateUserRole(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/github.moguchev.meloman.Meloman/UpdateUserRole",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MelomanServer).UpdateUserRole(ctx, req.(*UpdateUserRoleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -209,8 +301,16 @@ var Meloman_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Meloman_CreateUser_Handler,
 		},
 		{
-			MethodName: "GetUser",
-			Handler:    _Meloman_GetUser_Handler,
+			MethodName: "GetUserByID",
+			Handler:    _Meloman_GetUserByID_Handler,
+		},
+		{
+			MethodName: "GetUsers",
+			Handler:    _Meloman_GetUsers_Handler,
+		},
+		{
+			MethodName: "UpdateUserRole",
+			Handler:    _Meloman_UpdateUserRole_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

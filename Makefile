@@ -5,13 +5,21 @@ up:
 	docker-compose build
 	docker-compose up -d pg bouncer server
 
-.PHONY: up_db
-up_db:
-	docker-compose up -d pg bouncer
-
 .PHONY: down
 down:
 	docker-compose down
+
+.PHONY: stop
+stop:
+	docker-compose stop pg bouncer server
+
+.PHONY: start
+start:
+	docker-compose start pg bouncer server
+
+.PHONY: up_db
+up_db:
+	docker-compose up -d pg bouncer
 
 .PHONY: build
 build:

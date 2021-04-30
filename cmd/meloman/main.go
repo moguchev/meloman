@@ -6,16 +6,17 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"sync/atomic"
 	"time"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
+	grpc_ratelimit "github.com/grpc-ecosystem/go-grpc-middleware/ratelimit"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/encoding/protojson"
 
 	"github.com/moguchev/meloman/db"
@@ -24,14 +25,17 @@ import (
 	"github.com/moguchev/meloman/internal/service"
 	"github.com/moguchev/meloman/pkg/api/meloman"
 	gwmeloman "github.com/moguchev/meloman/pkg/gw/meloman"
+	"github.com/moguchev/meloman/pkg/ratelimit"
 )
 
 const (
-	ServerAdressGRPC = ":8090"
-	ServerAdressHTTP = ":8080"
-	SwaggerDir       = "./swaggerui"
-	SecretKey        = "aQd23nsoEd"
-	TokenDuration    = 30 * time.Minute
+	ServerAdressGRPC        = ":8090"
+	ServerAdressHTTP        = ":8080"
+	SwaggerDir              = "./swaggerui"
+	SecretKey               = "aQd23nsoEd"
+	TokenDuration           = 30 * time.Minute
+	RateLimit         int64 = 2000
+	TimeoutConnection       = 5 * time.Second
 )
 
 func serveSwagger(mux *http.ServeMux) {
@@ -40,12 +44,23 @@ func serveSwagger(mux *http.ServeMux) {
 	mux.Handle(prefix, http.StripPrefix(prefix, fileServer))
 }
 
+type rateLimiter struct {
+	count int64
+}
+
+func (rl *rateLimiter) Limit() bool {
+	if atomic.LoadInt64(&rl.count) > RateLimit {
+		return true
+	}
+	atomic.StoreInt64(&rl.count, atomic.AddInt64(&rl.count, 1)) // count++
+	_ = time.AfterFunc(time.Second, func() {
+		atomic.StoreInt64(&rl.count, atomic.AddInt64(&rl.count, -1)) // count--
+	})
+	return false
+}
+
 func main() {
 	url := os.Getenv("DATABASE_URL")
-
-	// Create a server. Recovery handlers should typically be last in the chain so that other middleware
-	// (e.g. logging) can operate on the recovered state instead of being directly affected by any panic
-	_ = grpc.NewServer()
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -68,31 +83,28 @@ func main() {
 		logger.Fatal("migrate database", zap.Error(err))
 	}
 
-	// auth
+	// auth manager
 	jwtManager := auth.NewJWTManager(SecretKey, TokenDuration)
 	authManager := auth.NewManager(jwtManager, access.AccessibleRoles(), logger)
 
-	// Define customfunc to handle panic
-	customFunc := func(p interface{}) (err error) {
-		logger.Error("panic", zap.Any("panic", p))
-		return status.Errorf(codes.Internal, codes.Internal.String())
-	}
-	// Shared options for the logger, with a custom gRPC code to log level function.
-	opts := []grpc_recovery.Option{
-		grpc_recovery.WithRecoveryHandler(customFunc),
-	}
+	// ratelimiter
+	limiter := ratelimit.NewLimiter(RateLimit)
 
 	// Create a gRPC server object
 	grpcs := grpc.NewServer(
-		grpc.ConnectionTimeout(5*time.Second),
-		grpc_middleware.WithUnaryServerChain(
-			grpc_recovery.UnaryServerInterceptor(opts...),
-		),
-		grpc_middleware.WithStreamServerChain(
-			grpc_recovery.StreamServerInterceptor(opts...),
-		),
-		grpc.UnaryInterceptor(authManager.Unary()),
-		grpc.StreamInterceptor(authManager.Stream()),
+		grpc.ConnectionTimeout(TimeoutConnection),
+		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
+			grpc_recovery.StreamServerInterceptor(),
+			grpc_zap.StreamServerInterceptor(logger),
+			grpc_ratelimit.StreamServerInterceptor(limiter),
+			authManager.Stream(),
+		)),
+		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+			grpc_recovery.UnaryServerInterceptor(),
+			grpc_zap.UnaryServerInterceptor(logger),
+			grpc_ratelimit.UnaryServerInterceptor(limiter),
+			authManager.Unary(),
+		)),
 	)
 	// Create Service
 	srv := service.NewService(logger, database, authManager)

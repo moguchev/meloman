@@ -1,13 +1,31 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "meloman/meloman.proto",
-    "version": "version not set"
+    "title": "Курсовая работа по курсу БСБД ИУ8-81 МГТУ им. Н. Э. Баумана 2021г.",
+    "version": "1.0",
+    "contact": {
+      "name": "Leonid Moguchev",
+      "url": "https://github.com/moguchev",
+      "email": "abracadabra.14@mail.ru"
+    },
+    "license": {
+      "name": "MIT License",
+      "url": "https://raw.githubusercontent.com/moguchev/meloman/main/LICENSE"
+    }
   },
   "tags": [
     {
-      "name": "Meloman"
+      "name": "Meloman",
+      "description": "Сервис-интерфейс к БД меломан",
+      "externalDocs": {
+        "description": "Find out more about EchoService",
+        "url": "https://github.com/grpc-ecosystem/grpc-gateway"
+      }
     }
+  ],
+  "schemes": [
+    "http",
+    "https"
   ],
   "consumes": [
     "application/json"
@@ -19,6 +37,7 @@
     "/api/v1/auth": {
       "post": {
         "summary": "авторизация",
+        "description": "access: *",
         "operationId": "Meloman_Auth",
         "responses": {
           "200": {
@@ -50,9 +69,55 @@
         ]
       }
     },
-    "/api/v1/user": {
+    "/api/v1/users": {
+      "get": {
+        "summary": "получение всех пользователей",
+        "description": "access: user, admin",
+        "operationId": "Meloman_GetUsers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/melomanGetUsersResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "limit",
+            "description": "число пользователей в одном ответе, по уполномочию 100.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "offset",
+            "description": "сдвиг в списке пользователй.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "Meloman"
+        ],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      },
       "post": {
         "summary": "создание пользователя/регистрация",
+        "description": "access: *",
         "operationId": "Meloman_CreateUser",
         "responses": {
           "200": {
@@ -84,15 +149,16 @@
         ]
       }
     },
-    "/api/v1/user/{id}": {
+    "/api/v1/users/{id}": {
       "get": {
         "summary": "получение пользователя по id",
-        "operationId": "Meloman_GetUser",
+        "description": "access: user, admin",
+        "operationId": "Meloman_GetUserByID",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/melomanGetUserResponse"
+              "$ref": "#/definitions/melomanGetUserByIDResponse"
             }
           },
           "default": {
@@ -113,12 +179,65 @@
         ],
         "tags": [
           "Meloman"
+        ],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/users/{id}/role": {
+      "put": {
+        "summary": "изменение роли пользователя",
+        "description": "access: admin",
+        "operationId": "Meloman_UpdateUserRole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "id пользователя",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "description": "роль",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/melomanRole"
+            }
+          }
+        ],
+        "tags": [
+          "Meloman"
+        ],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
         ]
       }
     },
     "/ping": {
       "get": {
         "summary": "проверка работоспособности сервиса",
+        "description": "access: *",
         "operationId": "Meloman_Ping",
         "responses": {
           "200": {
@@ -164,20 +283,47 @@
       "properties": {
         "login": {
           "type": "string",
-          "title": "логин"
+          "title": "логин",
+          "required": [
+            "login"
+          ]
         },
         "password": {
           "type": "string",
-          "title": "пароль"
+          "title": "пароль",
+          "required": [
+            "password"
+          ]
         }
-      }
+      },
+      "required": [
+        "login",
+        "password"
+      ]
     },
-    "melomanGetUserResponse": {
+    "melomanGetUserByIDResponse": {
       "type": "object",
       "properties": {
         "user": {
           "$ref": "#/definitions/melomanUser",
           "title": "пользователь"
+        }
+      }
+    },
+    "melomanGetUsersResponse": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "format": "int64",
+          "title": "всего пользователей"
+        },
+        "users": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/melomanUser"
+          },
+          "title": "текущий ответ"
         }
       }
     },
@@ -210,6 +356,10 @@
         "role": {
           "$ref": "#/definitions/melomanRole",
           "title": "роль пользователя"
+        },
+        "id": {
+          "type": "string",
+          "title": "ID пользователя"
         }
       }
     },
@@ -246,5 +396,20 @@
         }
       }
     }
+  },
+  "securityDefinitions": {
+    "ApiKeyAuth": {
+      "type": "apiKey",
+      "name": "grpc-metadata-authorization",
+      "in": "header",
+      "x-amazon-apigateway-authorizer": {
+        "authorizerResultTtlInSeconds": 1800,
+        "type": "token"
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "ТЗ",
+    "url": "https://github.com/moguchev/meloman"
   }
 }

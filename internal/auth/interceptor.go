@@ -45,7 +45,7 @@ func (i *interceptor) Unary() grpc.UnaryServerInterceptor {
 		i.logger.Debug(api, zap.String("method", info.FullMethod))
 
 		if err := i.authorize(ctx, info.FullMethod); err != nil {
-			i.logger.Error(api, zap.Error(err))
+			// i.logger.Error(api, zap.Error(err))
 			return nil, err
 		}
 
