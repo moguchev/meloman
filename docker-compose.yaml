@@ -35,6 +35,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    deploy:
+      replicas: 1
     container_name: 'server-container'
     restart: unless-stopped
     hostname: server
@@ -45,10 +47,19 @@ services:
       - 8090:8090
     command: ./meloman
     depends_on:
-      - pg
       - bouncer
     networks:
       - some-net
+
+  nginx:
+    build: "./nginx"
+    ports:
+      - 80:80
+    depends_on:
+      - server
+    networks:
+      - some-net
+
 networks:
   some-net:
     driver: bridge

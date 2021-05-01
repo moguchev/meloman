@@ -2,7 +2,8 @@
   "swagger": "2.0",
   "info": {
     "title": "Курсовая работа по курсу БСБД ИУ8-81 МГТУ им. Н. Э. Баумана 2021г.",
-    "version": "1.0",
+    "description": "Сервис предоставляет REST API для работы с БД меломан.",
+    "version": "1.0.0",
     "contact": {
       "name": "Leonid Moguchev",
       "url": "https://github.com/moguchev",
@@ -23,6 +24,7 @@
       }
     }
   ],
+  "host": "localhost:80",
   "schemes": [
     "http",
     "https"

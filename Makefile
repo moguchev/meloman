@@ -3,7 +3,7 @@ export GO111MODULE=on
 .PHONY: up
 up:
 	docker-compose build
-	docker-compose up -d pg bouncer server
+	docker-compose up -d pg bouncer server nginx
 
 .PHONY: down
 down:
@@ -11,11 +11,11 @@ down:
 
 .PHONY: stop
 stop:
-	docker-compose stop pg bouncer server
+	docker-compose stop pg bouncer server nginx
 
 .PHONY: start
 start:
-	docker-compose start pg bouncer server
+	docker-compose start pg bouncer server nginx
 
 .PHONY: up_db
 up_db:

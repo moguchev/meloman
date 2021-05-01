@@ -15,8 +15,9 @@ option go_package = "github.com/moguchev/meloman/pkg/api/meloman";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
 	info: {
+        description: "Сервис предоставляет REST API для работы с БД меломан."
 		title: "Курсовая работа по курсу БСБД ИУ8-81 МГТУ им. Н. Э. Баумана 2021г.";
-		version: "1.0";
+		version: "1.0.0";
 		contact: {
 			name: "Leonid Moguchev";
 			url: "https://github.com/moguchev";
@@ -27,6 +28,7 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
 			url: "https://raw.githubusercontent.com/moguchev/meloman/main/LICENSE";
 		};
 	};
+    host: "localhost:80"
 	external_docs: {
 		url: "https://github.com/moguchev/meloman";
 		description: "ТЗ";
