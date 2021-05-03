@@ -19,13 +19,13 @@ CREATE TABLE IF NOT EXISTS artists (
 );
 
 CREATE TABLE IF NOT EXISTS formats (
-    id   uuid        NOT NULL,
+    id   integer     NOT NULL,
     name varchar(64) NOT NULL,
     PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS labels (
-    id   uuid         NOT NULL,
+    id   integer      NOT NULL,
     name varchar(256) NOT NULL,
     PRIMARY KEY (id)
 );
@@ -36,8 +36,8 @@ CREATE TABLE IF NOT EXISTS albums (
     artist_id uuid         NOT NULL REFERENCES artists(id) ON DELETE CASCADE,
     year      int2,
     cover     text,
-    format_id uuid         REFERENCES formats(id) ON DELETE SET NULL,
-    label_id  uuid         REFERENCES labels(id) ON DELETE SET NULL,
+    format_id integer      REFERENCES formats(id) ON DELETE SET NULL,
+    label_id  integer      REFERENCES labels(id) ON DELETE SET NULL,
     PRIMARY KEY (id),
     UNIQUE (title, artist_id, year, format_id, label_id)
 );
@@ -57,3 +57,24 @@ CREATE TABLE IF NOT EXISTS users_albums (
     added_at   timestamptz NOT NULL,
     PRIMARY KEY (user_id, album_id)
 );
+
+INSERT INTO formats (id, name)
+VALUES
+    (1,'CD'),
+    (2,'Винил')
+;
+
+INSERT INTO labels (id, name)
+VALUES
+    (1,'Domino'),
+    (2,'XL Recordings'),
+    (3,'Reprise Records'),
+    (4,'Warner Records'),
+    (5,'Virgin'),
+    (6,'Virgin'),
+    (7,'Columbia'),
+    (8,'Emi'),
+    (9,'Modular'),
+    (10,'14th floor'),
+    (11,'Fueled by Ramen')
+;

@@ -17,6 +17,11 @@ import (
 func (s *implimentation) GetUserByID(ctx context.Context, req *meloman.GetUserByIDRequest) (*meloman.GetUserByIDResponse, error) {
 	const api = "service.GetUserByID"
 
+	id, err := uuid.Parse(req.GetId())
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, codes.InvalidArgument.String())
+	}
+
 	db := s.repo.DB()
 	// ______________users________________
 	// id         uuid          NOT NULL,
@@ -27,15 +32,12 @@ func (s *implimentation) GetUserByID(ctx context.Context, req *meloman.GetUserBy
 	// updated_at timestamp     NOT NULL,
 	// role   	  user_role     NOT NULL DEFAULT 'user',
 	var (
-		login     string
-		createdAt time.Time
-		updatedAt time.Time
-		role      string
-		id        uuid.UUID
+		login, role          string
+		createdAt, updatedAt time.Time
 	)
 
-	row := db.QueryRow(ctx, "SELECT id, login, created_at, updated_at, role FROM users WHERE id = $1", req.GetId())
-	if err := row.Scan(&id, &login, &createdAt, &updatedAt, &role); err != nil {
+	row := db.QueryRow(ctx, "SELECT login, created_at, updated_at, role FROM users WHERE id = $1", id)
+	if err := row.Scan(&login, &createdAt, &updatedAt, &role); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, status.Errorf(codes.NotFound, codes.NotFound.String())
 		}
@@ -45,11 +47,11 @@ func (s *implimentation) GetUserByID(ctx context.Context, req *meloman.GetUserBy
 
 	return &meloman.GetUserByIDResponse{
 		User: &meloman.User{
+			Id:        id.String(),
 			Login:     login,
 			CreatedAt: timestamppb.New(createdAt),
 			UpdatedAt: timestamppb.New(updatedAt),
 			Role:      models.ParseRole(role).Proto(),
-			Id:        id.String(),
 		},
 	}, nil
 }

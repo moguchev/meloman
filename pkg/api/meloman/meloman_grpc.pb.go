@@ -43,6 +43,42 @@ type MelomanClient interface {
 	//
 	// access: admin
 	UpdateUserRole(ctx context.Context, in *UpdateUserRoleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// создание исполнителя
+	//
+	// access: admin
+	CreateArtist(ctx context.Context, in *CreateArtistRequest, opts ...grpc.CallOption) (*CreateArtistsResponse, error)
+	// получить список всех исполнитей
+	//
+	// access: user, admin
+	GetArtists(ctx context.Context, in *GetArtistsRequest, opts ...grpc.CallOption) (*GetArtistsResponse, error)
+	// получение исполнителя по id
+	//
+	// access: user, admin
+	GetArtistByID(ctx context.Context, in *GetArtistByIDRequest, opts ...grpc.CallOption) (*GetArtistByIDResponse, error)
+	// получение списка альбомов исполнителя
+	//
+	// access: user, admin
+	GetArtistAlbums(ctx context.Context, in *GetArtistAlbumsRequest, opts ...grpc.CallOption) (*GetArtistAlbumsResponse, error)
+	// получить список всех форматов
+	//
+	// access: user, admin
+	GetFormats(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetFormatsResponse, error)
+	// получить список всех издателей
+	//
+	// access: user, admin
+	GetLabels(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLabelsResponse, error)
+	// создание альбома
+	//
+	// access: admin
+	CreateAlbum(ctx context.Context, in *CreateAlbumRequest, opts ...grpc.CallOption) (*CreateAlbumResponse, error)
+	// создание/добавление композиции в альбом
+	//
+	// access: admin
+	CreateTrack(ctx context.Context, in *CreateTrackRequest, opts ...grpc.CallOption) (*CreateTrackResponse, error)
+	// получение композиций альбома
+	//
+	// access: user, admin
+	GetAlbumTracks(ctx context.Context, in *GetAlbumTracksRequest, opts ...grpc.CallOption) (*GetAlbumTracksResponse, error)
 }
 
 type melomanClient struct {
@@ -107,6 +143,87 @@ func (c *melomanClient) UpdateUserRole(ctx context.Context, in *UpdateUserRoleRe
 	return out, nil
 }
 
+func (c *melomanClient) CreateArtist(ctx context.Context, in *CreateArtistRequest, opts ...grpc.CallOption) (*CreateArtistsResponse, error) {
+	out := new(CreateArtistsResponse)
+	err := c.cc.Invoke(ctx, "/github.moguchev.meloman.Meloman/CreateArtist", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *melomanClient) GetArtists(ctx context.Context, in *GetArtistsRequest, opts ...grpc.CallOption) (*GetArtistsResponse, error) {
+	out := new(GetArtistsResponse)
+	err := c.cc.Invoke(ctx, "/github.moguchev.meloman.Meloman/GetArtists", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *melomanClient) GetArtistByID(ctx context.Context, in *GetArtistByIDRequest, opts ...grpc.CallOption) (*GetArtistByIDResponse, error) {
+	out := new(GetArtistByIDResponse)
+	err := c.cc.Invoke(ctx, "/github.moguchev.meloman.Meloman/GetArtistByID", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *melomanClient) GetArtistAlbums(ctx context.Context, in *GetArtistAlbumsRequest, opts ...grpc.CallOption) (*GetArtistAlbumsResponse, error) {
+	out := new(GetArtistAlbumsResponse)
+	err := c.cc.Invoke(ctx, "/github.moguchev.meloman.Meloman/GetArtistAlbums", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *melomanClient) GetFormats(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetFormatsResponse, error) {
+	out := new(GetFormatsResponse)
+	err := c.cc.Invoke(ctx, "/github.moguchev.meloman.Meloman/GetFormats", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *melomanClient) GetLabels(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLabelsResponse, error) {
+	out := new(GetLabelsResponse)
+	err := c.cc.Invoke(ctx, "/github.moguchev.meloman.Meloman/GetLabels", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *melomanClient) CreateAlbum(ctx context.Context, in *CreateAlbumRequest, opts ...grpc.CallOption) (*CreateAlbumResponse, error) {
+	out := new(CreateAlbumResponse)
+	err := c.cc.Invoke(ctx, "/github.moguchev.meloman.Meloman/CreateAlbum", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *melomanClient) CreateTrack(ctx context.Context, in *CreateTrackRequest, opts ...grpc.CallOption) (*CreateTrackResponse, error) {
+	out := new(CreateTrackResponse)
+	err := c.cc.Invoke(ctx, "/github.moguchev.meloman.Meloman/CreateTrack", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *melomanClient) GetAlbumTracks(ctx context.Context, in *GetAlbumTracksRequest, opts ...grpc.CallOption) (*GetAlbumTracksResponse, error) {
+	out := new(GetAlbumTracksResponse)
+	err := c.cc.Invoke(ctx, "/github.moguchev.meloman.Meloman/GetAlbumTracks", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MelomanServer is the server API for Meloman service.
 // All implementations must embed UnimplementedMelomanServer
 // for forward compatibility
@@ -135,6 +252,42 @@ type MelomanServer interface {
 	//
 	// access: admin
 	UpdateUserRole(context.Context, *UpdateUserRoleRequest) (*emptypb.Empty, error)
+	// создание исполнителя
+	//
+	// access: admin
+	CreateArtist(context.Context, *CreateArtistRequest) (*CreateArtistsResponse, error)
+	// получить список всех исполнитей
+	//
+	// access: user, admin
+	GetArtists(context.Context, *GetArtistsRequest) (*GetArtistsResponse, error)
+	// получение исполнителя по id
+	//
+	// access: user, admin
+	GetArtistByID(context.Context, *GetArtistByIDRequest) (*GetArtistByIDResponse, error)
+	// получение списка альбомов исполнителя
+	//
+	// access: user, admin
+	GetArtistAlbums(context.Context, *GetArtistAlbumsRequest) (*GetArtistAlbumsResponse, error)
+	// получить список всех форматов
+	//
+	// access: user, admin
+	GetFormats(context.Context, *emptypb.Empty) (*GetFormatsResponse, error)
+	// получить список всех издателей
+	//
+	// access: user, admin
+	GetLabels(context.Context, *emptypb.Empty) (*GetLabelsResponse, error)
+	// создание альбома
+	//
+	// access: admin
+	CreateAlbum(context.Context, *CreateAlbumRequest) (*CreateAlbumResponse, error)
+	// создание/добавление композиции в альбом
+	//
+	// access: admin
+	CreateTrack(context.Context, *CreateTrackRequest) (*CreateTrackResponse, error)
+	// получение композиций альбома
+	//
+	// access: user, admin
+	GetAlbumTracks(context.Context, *GetAlbumTracksRequest) (*GetAlbumTracksResponse, error)
 	mustEmbedUnimplementedMelomanServer()
 }
 
@@ -159,6 +312,33 @@ func (UnimplementedMelomanServer) GetUsers(context.Context, *GetUsersRequest) (*
 }
 func (UnimplementedMelomanServer) UpdateUserRole(context.Context, *UpdateUserRoleRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserRole not implemented")
+}
+func (UnimplementedMelomanServer) CreateArtist(context.Context, *CreateArtistRequest) (*CreateArtistsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateArtist not implemented")
+}
+func (UnimplementedMelomanServer) GetArtists(context.Context, *GetArtistsRequest) (*GetArtistsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetArtists not implemented")
+}
+func (UnimplementedMelomanServer) GetArtistByID(context.Context, *GetArtistByIDRequest) (*GetArtistByIDResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetArtistByID not implemented")
+}
+func (UnimplementedMelomanServer) GetArtistAlbums(context.Context, *GetArtistAlbumsRequest) (*GetArtistAlbumsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetArtistAlbums not implemented")
+}
+func (UnimplementedMelomanServer) GetFormats(context.Context, *emptypb.Empty) (*GetFormatsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFormats not implemented")
+}
+func (UnimplementedMelomanServer) GetLabels(context.Context, *emptypb.Empty) (*GetLabelsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetLabels not implemented")
+}
+func (UnimplementedMelomanServer) CreateAlbum(context.Context, *CreateAlbumRequest) (*CreateAlbumResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateAlbum not implemented")
+}
+func (UnimplementedMelomanServer) CreateTrack(context.Context, *CreateTrackRequest) (*CreateTrackResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateTrack not implemented")
+}
+func (UnimplementedMelomanServer) GetAlbumTracks(context.Context, *GetAlbumTracksRequest) (*GetAlbumTracksResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAlbumTracks not implemented")
 }
 func (UnimplementedMelomanServer) mustEmbedUnimplementedMelomanServer() {}
 
@@ -281,6 +461,168 @@ func _Meloman_UpdateUserRole_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Meloman_CreateArtist_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateArtistRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MelomanServer).CreateArtist(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/github.moguchev.meloman.Meloman/CreateArtist",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MelomanServer).CreateArtist(ctx, req.(*CreateArtistRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Meloman_GetArtists_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetArtistsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MelomanServer).GetArtists(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/github.moguchev.meloman.Meloman/GetArtists",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MelomanServer).GetArtists(ctx, req.(*GetArtistsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Meloman_GetArtistByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetArtistByIDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MelomanServer).GetArtistByID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/github.moguchev.meloman.Meloman/GetArtistByID",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MelomanServer).GetArtistByID(ctx, req.(*GetArtistByIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Meloman_GetArtistAlbums_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetArtistAlbumsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MelomanServer).GetArtistAlbums(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/github.moguchev.meloman.Meloman/GetArtistAlbums",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MelomanServer).GetArtistAlbums(ctx, req.(*GetArtistAlbumsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Meloman_GetFormats_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MelomanServer).GetFormats(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/github.moguchev.meloman.Meloman/GetFormats",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MelomanServer).GetFormats(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Meloman_GetLabels_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MelomanServer).GetLabels(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/github.moguchev.meloman.Meloman/GetLabels",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MelomanServer).GetLabels(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Meloman_CreateAlbum_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateAlbumRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MelomanServer).CreateAlbum(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/github.moguchev.meloman.Meloman/CreateAlbum",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MelomanServer).CreateAlbum(ctx, req.(*CreateAlbumRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Meloman_CreateTrack_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateTrackRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MelomanServer).CreateTrack(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/github.moguchev.meloman.Meloman/CreateTrack",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MelomanServer).CreateTrack(ctx, req.(*CreateTrackRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Meloman_GetAlbumTracks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAlbumTracksRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MelomanServer).GetAlbumTracks(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/github.moguchev.meloman.Meloman/GetAlbumTracks",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MelomanServer).GetAlbumTracks(ctx, req.(*GetAlbumTracksRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Meloman_ServiceDesc is the grpc.ServiceDesc for Meloman service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -311,6 +653,42 @@ var Meloman_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateUserRole",
 			Handler:    _Meloman_UpdateUserRole_Handler,
+		},
+		{
+			MethodName: "CreateArtist",
+			Handler:    _Meloman_CreateArtist_Handler,
+		},
+		{
+			MethodName: "GetArtists",
+			Handler:    _Meloman_GetArtists_Handler,
+		},
+		{
+			MethodName: "GetArtistByID",
+			Handler:    _Meloman_GetArtistByID_Handler,
+		},
+		{
+			MethodName: "GetArtistAlbums",
+			Handler:    _Meloman_GetArtistAlbums_Handler,
+		},
+		{
+			MethodName: "GetFormats",
+			Handler:    _Meloman_GetFormats_Handler,
+		},
+		{
+			MethodName: "GetLabels",
+			Handler:    _Meloman_GetLabels_Handler,
+		},
+		{
+			MethodName: "CreateAlbum",
+			Handler:    _Meloman_CreateAlbum_Handler,
+		},
+		{
+			MethodName: "CreateTrack",
+			Handler:    _Meloman_CreateTrack_Handler,
+		},
+		{
+			MethodName: "GetAlbumTracks",
+			Handler:    _Meloman_GetAlbumTracks_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

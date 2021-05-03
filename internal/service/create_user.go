@@ -53,11 +53,16 @@ func (s *implimentation) CreateUser(ctx context.Context, req *meloman.CreateUser
 	id := uuid.New()
 
 	// create user in db
-	tag, err := db.Exec(ctx, "INSERT INTO users (id, login, password, salt, created_at, updated_at) VALUES ($1,$2,$3,$4,$5,$6)",
+	tag, err := db.Exec(ctx,
+		"INSERT INTO users (id, login, password, salt, created_at, updated_at) VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT DO NOTHING",
 		id, credentials.GetLogin(), fmt.Sprintf("%x", hashPassword[:]), salt, time.Now(), time.Now())
-	if err != nil || tag.RowsAffected() == 0 {
+	if err != nil {
 		s.log.Error(api, zap.Error(err))
 		return nil, status.Error(codes.Internal, codes.Internal.String())
+	}
+
+	if tag.RowsAffected() == 0 {
+		return nil, status.Error(codes.AlreadyExists, codes.AlreadyExists.String())
 	}
 
 	// set auth headers

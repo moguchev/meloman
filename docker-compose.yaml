@@ -7,6 +7,7 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
       POSTGRES_DB: meloman
+    container_name: 'postgresql-container'
     ports:
       - 5432:5432
     networks:
@@ -26,6 +27,7 @@ services:
       # - PGBOUNCER_MAX_CLIENT_CONN=100
       # - PGBOUNCER_DEFAULT_POOL_SIZE=20
       # - PGBOUNCER_IGNORE_STARTUP_PARAMETERS=binary_parameters,extra_float_digits,pool_max_conns
+    container_name: 'pgbouncer-container'
     ports:
       - 6432:6432
     networks:
@@ -53,6 +55,7 @@ services:
 
   nginx:
     build: "./nginx"
+    container_name: 'nginx-container'
     ports:
       - 80:80
     depends_on:

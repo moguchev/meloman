@@ -19,7 +19,7 @@ import (
 )
 
 func (s *implimentation) Auth(ctx context.Context, req *meloman.AuthRequest) (*meloman.AuthResponse, error) {
-	const api = "service.GetUser"
+	const api = "service.Auth"
 
 	// validate input
 	if err := validateCredentials(req.GetCredentials()); err != nil {

@@ -26,17 +26,16 @@ func (s *implimentation) GetUsers(ctx context.Context, req *meloman.GetUsersRequ
 	// updated_at timestamp     NOT NULL,
 	// role   	  user_role     NOT NULL DEFAULT 'user',
 	var (
-		limit     uint32 = 100
-		count     uint32
-		login     string
-		createdAt time.Time
-		updatedAt time.Time
-		role      string
-		id        uuid.UUID
+		limit uint32 = 100
+		count uint32
 	)
 
 	if err := db.QueryRow(ctx, "SELECT COUNT(1) FROM users").Scan(&count); err != nil {
 		return nil, status.Errorf(codes.Internal, codes.Internal.String())
+	}
+
+	if count == 0 {
+		return &meloman.GetUsersResponse{Total: count, Users: []*meloman.User{}}, nil
 	}
 
 	if req.GetLimit() > 0 {
@@ -52,6 +51,11 @@ func (s *implimentation) GetUsers(ctx context.Context, req *meloman.GetUsersRequ
 
 	users := []*meloman.User{}
 	for rows.Next() {
+		var (
+			id                   uuid.UUID
+			login, role          string
+			createdAt, updatedAt time.Time
+		)
 		if err := rows.Scan(&id, &login, &createdAt, &updatedAt, &role); err != nil {
 			s.log.Sugar().Errorf("%s: scan: %s", api, err.Error())
 			return nil, status.Errorf(codes.Internal, codes.Internal.String())
