@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"context"
+
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
@@ -39,4 +41,12 @@ func (m *manager) Unary() grpc.UnaryServerInterceptor {
 
 func (m *manager) Stream() grpc.StreamServerInterceptor {
 	return m.interceptor.Stream()
+}
+
+func (m *manager) GetUserClaimsFromContext(ctx context.Context) (*UserClaims, bool) {
+	return m.tokenManager.GetUserClaimsFromContext(ctx)
+}
+
+func (m *manager) PutUserClaimsToContext(ctx context.Context, claims *UserClaims) context.Context {
+	return m.tokenManager.PutUserClaimsToContext(ctx, claims)
 }

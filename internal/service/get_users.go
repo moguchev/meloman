@@ -17,14 +17,6 @@ func (s *implimentation) GetUsers(ctx context.Context, req *meloman.GetUsersRequ
 
 	db := s.repo.DB()
 
-	// ______________users________________
-	// id         uuid          NOT NULL,
-	// login      varchar(64)   NOT NULL,
-	// password   varchar(256)  NOT NULL,
-	// salt       varchar(256)  NOT NULL,
-	// created_at timestamp     NOT NULL,
-	// updated_at timestamp     NOT NULL,
-	// role   	  user_role     NOT NULL DEFAULT 'user',
 	var (
 		limit uint32 = 100
 		count uint32

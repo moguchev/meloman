@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"database/sql"
+
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
 	"github.com/moguchev/meloman/pkg/api/meloman"
@@ -26,7 +28,8 @@ func (s *implimentation) GetArtistByID(ctx context.Context, req *meloman.GetArti
 	// biography  text          NOT NULL DEFAULT '',
 	// image      text,
 	var (
-		fullName, biography, image string
+		fullName, biography string
+		image               sql.NullString
 	)
 
 	row := db.QueryRow(ctx, "SELECT full_name, biography, image FROM artists WHERE id = $1", id)
@@ -42,6 +45,6 @@ func (s *implimentation) GetArtistByID(ctx context.Context, req *meloman.GetArti
 		Id:        id.String(),
 		FullName:  fullName,
 		Biography: biography,
-		Image:     image,
+		Image:     image.String,
 	}, nil
 }

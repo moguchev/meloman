@@ -23,3 +23,6 @@ googleapis/
 # idea
 .vscode/
 .idea/
+
+# database
+db/data/

@@ -19,20 +19,13 @@ func (s *implimentation) GetArtistAlbums(ctx context.Context, req *meloman.GetAr
 	}
 
 	db := s.repo.DB()
-	// ______________albums________________
-	// id        uuid         NOT NULL,
-	// title     varchar(256) NOT NULL,
-	// artist_id uuid         NOT NULL REFERENCES artists(id) ON DELETE CASCADE,
-	// year      int2,
-	// cover     text,
-	// format_id integer      REFERENCES formats(id) ON DELETE SET NULL,
-	// label_id  integer      REFERENCES labels(id) ON DELETE SET NULL,
 
 	rows, err := db.Query(ctx, `SELECT a.id, a.title, a.year, a.cover, a.format_id, a.label_id, f.name, l.name
 		FROM albums a
 		JOIN formats f ON a.format_id = f.id
 		JOIN labels l ON a.label_id = l.id
-		WHERE a.artist_id = $1`, id)
+		WHERE a.artist_id = $1
+		ORDER BY a.year`, id)
 	if err != nil {
 		s.log.Sugar().Errorf("%s: can't get artist albums from db: %s", api, err.Error())
 		return nil, status.Errorf(codes.Internal, codes.Internal.String())

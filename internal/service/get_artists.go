@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/google/uuid"
 	"github.com/moguchev/meloman/pkg/api/meloman"
@@ -46,8 +47,9 @@ func (s *implimentation) GetArtists(ctx context.Context, req *meloman.GetArtists
 	artists := []*meloman.GetArtistsResponse_Artist{}
 	for rows.Next() {
 		var (
-			id              uuid.UUID
-			fullName, image string
+			id       uuid.UUID
+			fullName string
+			image    sql.NullString
 		)
 		if err := rows.Scan(&id, &fullName, &image); err != nil {
 			s.log.Sugar().Errorf("%s: scan: %s", api, err.Error())
@@ -56,7 +58,7 @@ func (s *implimentation) GetArtists(ctx context.Context, req *meloman.GetArtists
 		artists = append(artists, &meloman.GetArtistsResponse_Artist{
 			Id:       id.String(),
 			FullName: fullName,
-			Image:    image,
+			Image:    image.String,
 		})
 	}
 

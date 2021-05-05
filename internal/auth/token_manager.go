@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -10,6 +11,8 @@ import (
 type TokenManager interface {
 	Generate(user, role string) (string, error)
 	Verify(accessToken string) (*UserClaims, error)
+	GetUserClaimsFromContext(ctx context.Context) (*UserClaims, bool)
+	PutUserClaimsToContext(ctx context.Context, claims *UserClaims) context.Context
 }
 
 type UserClaims struct {
@@ -22,6 +25,12 @@ type jwtManager struct {
 	secretKey     string
 	tokenDuration time.Duration
 }
+
+type claimsKey struct {
+	string
+}
+
+var claimsKeykey = claimsKey{"key"}
 
 func NewJWTManager(secretKey string, tokenDuration time.Duration) TokenManager {
 	return &jwtManager{secretKey, tokenDuration}
@@ -64,4 +73,19 @@ func (manager *jwtManager) Verify(accessToken string) (*UserClaims, error) {
 	}
 
 	return claims, nil
+}
+
+func (manager *jwtManager) GetUserClaimsFromContext(ctx context.Context) (*UserClaims, bool) {
+	value := ctx.Value(claimsKeykey)
+
+	claims, ok := value.(UserClaims)
+	if !ok {
+		return nil, false
+	}
+
+	return &claims, true
+}
+
+func (manager *jwtManager) PutUserClaimsToContext(ctx context.Context, claims *UserClaims) context.Context {
+	return context.WithValue(ctx, claimsKeykey, *claims)
 }

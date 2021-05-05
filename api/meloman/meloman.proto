@@ -314,6 +314,91 @@ service Meloman {
 			}
 		};
     }
+
+    // поиск альбома по фильтру
+    //
+    // access: user, admin
+    rpc GetAlbumsByFilter(GetAlbumsByFilterRequest) returns (GetAlbumsByFilterResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/albums"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+			security: {
+				security_requirement: {
+					key: "ApiKeyAuth";
+					value: {}
+				}
+			}
+		};
+    }
+
+    // добавление альбома в коллекцию пользователя
+    //
+    // access: owner
+    rpc AddAlbum(AddAlbumRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            put: "/api/v1/users/{user_id}/albums/{album_id}"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+			security: {
+				security_requirement: {
+					key: "ApiKeyAuth";
+					value: {}
+				}
+			}
+		};
+    }
+
+    // удаление альбома из коллекции пользователя
+    //
+    // access: owner
+    rpc RemoveAlbum(RemoveAlbumRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            delete: "/api/v1/users/{user_id}/albums/{album_id}"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+			security: {
+				security_requirement: {
+					key: "ApiKeyAuth";
+					value: {}
+				}
+			}
+		};
+    }
+
+    // получить коллекцию пользователя
+    //
+    // access: user, admin
+    rpc GetUserCollection(GetUserCollectionRequest) returns (GetUserCollectionResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/users/{id}/collection"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+			security: {
+				security_requirement: {
+					key: "ApiKeyAuth";
+					value: {}
+				}
+			}
+		};
+    }
+
+    // получить топ популярных исполнителей
+    //
+    // access: user, admin
+    rpc GetTopPopularArtists(google.protobuf.Empty) returns (GetTopPopularArtistsResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/artists/popular"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+			security: {
+				security_requirement: {
+					key: "ApiKeyAuth";
+					value: {}
+				}
+			}
+		};
+    }
 }
 
 message Credentials {
@@ -555,4 +640,125 @@ message GetAlbumTracksResponse {
     }
     // копозиции альбома отсортированные по номеру в альбоме
     repeated Track tracks = 1;
+}
+
+message GetAlbumsByFilterRequest {
+    // название альбома
+    optional string album_title = 1;
+    // имя артиста
+    optional string artist_name = 2;
+    // название композиции
+    optional string track_title = 3;
+    //
+    optional uint64 limit = 4;
+    //
+    optional uint64 offset = 5;
+}
+
+message GetAlbumsByFilterResponse {
+    message Album {
+        // id альбома
+        string id = 1;
+        // название
+        string title = 2;
+        // год издания
+        int32 year = 3;
+        // обложка (base64 encoded image)
+        string image = 4;
+        // формат
+        Format format = 5;
+        // издатель
+        Label label = 6;
+        message Artist {
+            // uuid исполнителя
+            string id = 1;
+            // название исполнителя
+            string name = 2;
+        }
+        // исполнитель
+        Artist artist = 7;
+    }
+    // список альбомов
+    repeated Album albums = 1;
+}
+
+message AddAlbumRequest {
+    // uuid пользователя
+    string user_id = 1;
+    // uuid альбома
+    string album_id = 2;
+}
+
+message RemoveAlbumRequest {
+    // uuid пользователя
+    string user_id = 1;
+    // uuid альбома
+    string album_id = 2;
+}
+
+message GetUserCollectionRequest {
+    // uuid пользователя
+    string id = 1;
+}
+
+message GetUserCollectionResponse {
+    message Statistic {
+        // число альбомов в коллекции
+        uint32 album_num = 1;
+        // число композиций в коллекции 
+        uint32 track_num = 2;
+        // число исполнителей в коллекции
+        uint32 artist_num = 3;
+        // время добавление первого альбома в коллекцию
+        google.protobuf.Timestamp first_added = 4;
+        // время добавление последнего альбома в коллекцию
+        google.protobuf.Timestamp last_added = 5;   
+    }
+    // статистика по коллекции
+    Statistic statistic = 1;
+    message Artist {
+        // uuid исполнителя
+        string id = 1;
+        // название исполнителя
+        string name = 2;
+        // число альбомов в коллекции 
+        uint64 albums_num = 3;
+    }
+    // исполнители
+    repeated Artist artists = 2;
+    message Album {
+        // id альбома
+        string id = 1;
+        // название
+        string title = 2;
+        // год издания
+        int32 year = 3;
+        // обложка (base64 encoded image)
+        string image = 4;
+        // формат
+        Format format = 5;
+        // издатель
+        Label label = 6;
+        message Artist {
+            // uuid исполнителя
+            string id = 1;
+            // название исполнителя
+            string name = 2;
+        }
+        // исполнитель
+        Artist artist = 7;
+    }
+    // список альбомов
+    repeated Album albums = 3;
+}
+
+message GetTopPopularArtistsResponse {
+    message Artist {
+        // uuid исполнителя
+        string id = 1;
+        // название исполнителя
+        string name = 2;
+    }
+    // исполнители
+    repeated Artist artists = 1;
 }

@@ -8,6 +8,8 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: meloman
     container_name: 'postgresql-container'
+    volumes:
+      - ./db/data:/var/lib/postgresql/data
     ports:
       - 5432:5432
     networks:
